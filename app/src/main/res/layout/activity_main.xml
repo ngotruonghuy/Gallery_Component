@@ -16,10 +16,10 @@
 
     </androidx.appcompat.widget.AppCompatButton>
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/imageTest"
+    <com.example.gallery.Utils.ImageDrawView
+        android:id="@+id/image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
 
     <androidx.recyclerview.widget.RecyclerView

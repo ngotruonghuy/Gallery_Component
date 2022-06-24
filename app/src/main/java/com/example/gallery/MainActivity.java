@@ -30,6 +30,7 @@ import okhttp3.RequestBody;
 
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -39,6 +40,10 @@ import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+
+import com.example.gallery.Utils.ImageDrawView;
+import com.example.gallery.Utils.Point;
 import com.hbisoft.pickit.PickiT;
 import com.hbisoft.pickit.PickiTCallbacks;
 
@@ -48,7 +53,7 @@ public class MainActivity extends AppCompatActivity{
     RecyclerView imageCollection;
     AppCompatButton pickImageButton;
     RecyclerAdapter recyclerAdapter;
-    AppCompatImageView imageView;
+    ImageDrawView imageView;
 
     private static final int READ_PERMISSION = 101;
 
@@ -62,7 +67,7 @@ public class MainActivity extends AppCompatActivity{
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         imageCollection.setAdapter(recyclerAdapter);
         imageCollection.setLayoutManager(linearLayoutManager);
-        imageView = findViewById(R.id.imageTest);
+        imageView = findViewById(R.id.image);
 
         if (ContextCompat.checkSelfPermission
                 (MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) !=
@@ -81,19 +86,15 @@ public class MainActivity extends AppCompatActivity{
                 startActivityForResult(Intent.createChooser(intent,"Select images"),1);
             }
         });
-        imageView.setOnTouchListener(new View.OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility")
+        imageView.setOnTouchBoundingBox(new ImageDrawView.BoundingBox() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        float x = motionEvent.getX();
-                        float y = motionEvent.getY();
-                        if (x>371) {
-                            Toast.makeText(getApplicationContext(),"Nho hon 371",Toast.LENGTH_LONG).show();
-                        }
-                }
+            public boolean isPointInPoly(Point pointInView, List<Point> polygonInRaw, float scaleX, float scaleY) {
                 return true;
+            }
+
+            @Override
+            public void DoSomeThings(View view) {
+                int h = 9;
             }
         });
     }
@@ -123,7 +124,21 @@ public class MainActivity extends AppCompatActivity{
                 }
                 FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                 Bitmap myImg = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-                imageView.setImageBitmap(drawPoly(myImg));
+
+                List<Point> pts = new ArrayList<>();
+                pts.add(new Point(178,156));
+                pts.add(new Point(284,195));
+                pts.add(new Point(371,230));
+                pts.add(new Point(281,287));
+                pts.add(new Point(207,318));
+                pts.add(new Point(167,246));
+
+                Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                mPaint.setColor(Color.BLUE);
+                mPaint.setStrokeWidth(30);
+                mPaint.setStyle(Paint.Style.STROKE);
+
+                imageView.drawBitmapWithBoundingBox(myImg,pts,mPaint);
                 recyclerAdapter.notifyDataSetChanged();
             }
         }
